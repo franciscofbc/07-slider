@@ -1,10 +1,4 @@
-import React, { useState } from 'react';
-
-import Slider from 'react-slick';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
-
-import { FaQuoteRight } from 'react-icons/fa';
+import { useEffect, useState } from 'react';
 import {
   MdOutlineArrowBackIosNew,
   MdOutlineArrowForwardIos,
@@ -12,36 +6,41 @@ import {
 
 import { list } from './data';
 
+import Carousel from './Carousel';
+
 const App = () => {
   const [people, setPeople] = useState(list);
+  const [currentPerson, setCurrentPerson] = useState(0);
 
-  const settings = {
-    infinite: true,
-    speed: 1000,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 3000,
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      nextPerson();
+    }, 3000);
+    return () => clearInterval(intervalId);
+  }, [currentPerson]);
+
+  const prevPerson = () => {
+    setCurrentPerson((prevPerson) =>
+      prevPerson === 0 ? people.length - 1 : prevPerson - 1
+    );
+  };
+  const nextPerson = () => {
+    setCurrentPerson((prevPerson) =>
+      prevPerson === people.length - 1 ? 0 : prevPerson + 1
+    );
   };
 
   return (
     <main>
-      <Slider {...settings}>
-        {people.map(({ id, image, name, title, quote }) => (
-          <article key={id}>
-            <img
-              src={image}
-              alt={name}
-              className="img"
-              style={{ width: '50px' }}
-            />
-            <h3>{name}</h3>
-            <h5>{title}</h5>
-            <p>{quote}</p>
-            <FaQuoteRight className="icon" />
-          </article>
-        ))}
-      </Slider>
+      <button type="button" className="btn" onClick={prevPerson}>
+        <MdOutlineArrowBackIosNew />
+      </button>
+      <section>
+        <Carousel people={people} currentPerson={currentPerson} />
+      </section>
+      <button type="button" className="btn" onClick={nextPerson}>
+        <MdOutlineArrowForwardIos />
+      </button>
     </main>
   );
 };
